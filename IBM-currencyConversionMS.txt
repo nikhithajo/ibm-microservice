@@ -1,0 +1,136 @@
+https://ibm-learning.udemy.com/course/microservices-with-spring-boot-and-spring-cloud/learn/lecture/8005616#reviews
+
+
+*.webservice
+
+1.machiene to machiene or application to application interaction(1 application in ruby should interact with another java webservice)
+2.not platform dependant(no jar)
+3.communication over a network
+*service defenition =>req structure,response structure,endpoint,req/res format
+ WSDL =>",",",operations
+*service provider =>provide web service and consumer==> consumes the web service 
+
+
+springboot autoconfiguration finds dispatcher servlet ,errror pages,and converts bean object to json etc when starting the application (17)
+*req -dispatcher servlet-mapping -error mapping -jackson message conversion 
+
+
+*challenges in MS
+partitioning MS
+visibility monitoring
+configuration management
+Fault tolerence
+dynamic scaling
+
+*Advanatages in MS
+Easy adaptaon to any technology(future new language can easy added as a ms module)
+Dynamic scaling
+faster release cycle
+
+
+spring cloud config server.
+
+1.create a git folder and keep all properties file inside that.
+2.In appllication.properties give git url=>where all other ms property files resides.(applicationname.properties=default,applicationname-dev.properties etc)
+
+test it making config server up
+2.application.java class @EnableConfigServer
+3.to connect another ms to config server,another ms's application.properties give config server url
+http://localhost:88888
+spring.profiles.active=qa in limit service
+
+*config server changes we will get by a post request 
+http://localhost:8080/actuator/refresh 
+this works based  on actuator 
+*for this to work u need to add management.endpoints.web.exposure.include=* in application.properties
+*but this post call we need to make for all ms INSTANCES with their port to get the changes.To avoid that we use spring cloud bus.
+*For this add dependancy and use this url 
+http://localhost:8080/bus-refresh
+*Add this management.endpoints.web.exposure.include=bus-refresh and this management.security.enabled=false (if u get 401) in application.properties of ms
+
+feign
+
+*add dependency 
+*application.java @EnableFeignClients("com.package u need to scan)
+*create a proxy interface using @feignclient annotation
+ @FeignClient(name="name of ms to call", url="localhost:8000")
+*autowire the proxy and makecall
+*its like proxy no details are reveled 
+
+Ribbon
+
+*Suppose there are 4 instance od ms1 and 1 instance og ms2.and we are making call from  ms2 to ms1.
+but in feign we are giving url directly which can make call to only one instance(port).
+In this situation to distribute the call we use ribbon.
+*@RibbonClient(name="currency-exchange-service")
+in the feign proxy class
+*in ms2 application.properties 
+msname.ribbon.listofservers
+
+
+Eureka
+
+*All instances of ms register here
+*Avoid hard cording url in property file.helps for dynamic scaling
+*to discover a service ask registry where is that ms instance?
+server=>eureka.client.register-with-eureka=false
+		eureka.client.fetch-registry=false
+*@EnableEurekaServer in application class
+
+*@EnableDiscoveryClientin application class other than server
+*naming server=>it male use of application name.not host and port details
+
+Api gateways
+*authentication<authorization,securty,rate limits ,fault tolerence,service aggregation
+*add dependency and @EnableZuulProxy in appplication class
+*create a class extends zuulfilter add unimplemented methods for logging
+*we are making every call by API gateway
+eg:{zuule host}/{service name(from eureka)}/{url} ={http://localhost:8765}/{currency-exchange-service}/{currency-exchange/from/EUR/to/INR}	
+	
+Spring cloud sleuth and ZIPKIN
+*Helps for distributed tracing /centralised logging
+*This assign an id which will be same (uneque id for 1 transaction) in all ms logs.	
+*add sleuth dependency and @Bean
+	public Sampler defaultSampler(){
+		return Sampler.ALWAYS_SAMPLE;
+	}  in applilcationnclasses where all needed logging.
+	
+Zipkin
+*use rabbit mq for distributed login.there is a UI by zipkin for better visualisation
+ ms1        ms2
+	rabbitmq
+	zipkin
+	DB
+	
+*command to run zipkin server
+set RABBIT_URI=amqp://localhost
+java -jar zipkin-server-2.23.2-exec.jar
+*in pom add spring-rabbit,spring-cloud-starter-zipkin dependencies.Thats all
+*In zipkin dashboard we can trace req like the flow from ms2 to api gateway then ms1 in detail with tracking id
+
+
+Hystrix
+
+*@EnableHystrix  in application class .Also  add dependency
+*@GetMapping("/fault-tolerance-example")
+	@HystrixCommand(fallbackMethod="fallback method name"
+	
+	in that method return response from cache 
+
+
+urls
+http://localhost:8888/limits-service/dev
+http://localhost:8080/limits,http://localhost:8081/limits,
+http://localhost:8000/h2-console/login.do?jsessionid=f1f14ccd716a701d03c05856758865c2
+http://localhost:8001/currency-exchange/from/EUR/to/INR ,8000
+http://localhost:8100/currency-converter-feign/from/USD/to/INR/quantity/20000
+http://localhost:8761/	-eureka
+http://localhost:9411/zipkin/   -zipkin
+http://localhost:8080/actuator/refresh  - config server
+http://localhost:8080/bus/refresh -spring cloud bus
+http://localhost:8765/currency-exchange-service/currency-exchange/from/EUR/to/INR	
+http://localhost:8080/fault-tolerance-example -hystrix
+http://localhost:8080/h2-console- h2 console
+
+
+
