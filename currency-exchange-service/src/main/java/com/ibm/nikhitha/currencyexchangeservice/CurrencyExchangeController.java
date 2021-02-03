@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 @RestController
 public class CurrencyExchangeController {
 	
@@ -48,8 +50,9 @@ public class CurrencyExchangeController {
 		  logger.info("{}", exchangeValue);
 		return exchangeValue;
 	}
-	//add conversion factor
 	
+	//add conversion factor
+	@HystrixCommand(fallbackMethod="fallbackRetrieveConfiguration")
 	@PostMapping(value = "/currency-exchange/create/conversionfactor", consumes = "application/json", produces = "application/json")
 	public String createCSonversionfactor(@RequestBody ExchangeValue conFactor) {
 
@@ -63,13 +66,13 @@ public class CurrencyExchangeController {
 		}
 		else 
 			throw new IllegalArgumentException("Request body is null");
-		return conFactor.getFrom();
+		return "created";
 
 	};
 	
 	
 	// update conversion factor
-	
+	@HystrixCommand(fallbackMethod="fallbackRetrieveConfiguration")
 	@PutMapping(value = "/currency-exchange/update/conversionfactor", consumes = "application/json", produces = "application/json")
 	public String updateConversionfactor(@RequestBody ExchangeValue conFactor) {
 
@@ -82,4 +85,12 @@ public class CurrencyExchangeController {
 		return "updated";
 
 	};
+	
+	
+	public String fallbackRetrieveConfiguration(ExchangeValue conFactor,Throwable e ) {
+		return e.getMessage();
+	}
+
+
+	
 }
