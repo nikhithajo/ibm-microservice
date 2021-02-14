@@ -4,24 +4,19 @@ services:
 
  netflix-eureka-naming-server:
   image:  nikhitha/currms-netflix-eureka-naming-server:0.0.1-SNAPSHOT
-  hostname: netflix-eureka-naming-server
+  hostname: discovery
   ports:
     - "8761:8761"
-  networks:
-      - currency-network
+
 
  currency-exchange-service:
     image: nikhitha/currms-currency-exchange-service:0.0.1-SNAPSHOT
     ports:
       - "8000:8000"
-    networks:
-      - currency-network
-    depends_on:
-      - netflix-eureka-naming-server
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://netflix-eureka-naming-server:8761/eureka    
+    links:
+      - discovery
+    
 
  
-networks:
-  currency-network:
+
  

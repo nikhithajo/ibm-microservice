@@ -110,7 +110,7 @@
 				<configuration> 
 					<image>
 						<name>
-						nikhitha/currms-${project.artifactId}:${project.version}
+						nik/currms-${project.artifactId}:${project.version}
 						</name>
 					</image>
 					<pullPolicy>IF_NOT_PRESENT</pullPolicy>
