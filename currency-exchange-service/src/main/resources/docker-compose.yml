@@ -10,16 +10,18 @@ services:
   networks:
       - currency-network
 
-
  currency-exchange-service:
     image: nikhitha/currms-currency-exchange-service:0.0.1-SNAPSHOT
-    mem_limit: 700m
     ports:
       - "8000:8000"
     networks:
       - currency-network
-    links:
-      - "netflix-eureka-naming-server:" 
+    depends_on:
+      - netflix-eureka-naming-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://netflix-eureka-naming-server:8761/eureka    
+
+ 
 networks:
   currency-network:
  
