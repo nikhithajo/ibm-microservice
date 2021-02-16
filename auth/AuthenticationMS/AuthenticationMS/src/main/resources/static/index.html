@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot App ID Sample</title>
+    <link type="text/css" href="css/style.css" rel="stylesheet" />
+    <style>
+	table, th, td {
+	  border: 1px solid black;
+	  border-collapse: collapse;
+	}
+	</style>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({
+                beforeSend : function(xhr, settings) {
+                    if (settings.type == 'POST' || settings.type == 'PUT'
+                        || settings.type == 'DELETE') {
+                        if (!(/^http:.*/.test(settings.url) || /^https:.*/
+                            .test(settings.url))) {
+                            // Only send the token to relative URLs i.e. locally.
+                            xhr.setRequestHeader("X-XSRF-TOKEN",
+                                Cookies.get('XSRF-TOKEN'));
+                        }
+                    }
+                }
+            });
+        $.get("/user", function(data) {
+            $("#user").html(data.userAuthentication.details.name);
+            $("#userSub").html(data.userAuthentication.details.sub);
+            $("#userEmail").html(data.userAuthentication.details.email);
+            $("#provider").html(data.userAuthentication.details.identities[0].provider);
+            $(".unauthenticated").hide()
+            $(".authenticated").show()
+        }).fail(function() {
+            $(".unauthenticated").show()
+            $(".authenticated").hide()
+        });
+ 		
+        
+        var submit = function() {
+            $.get("/submit", { itemno:document.getElementById("itemno").value, quantity:document.getElementById("quantity").value }, function(data) {
+            	document.getElementById("itemno").reset(); 
+            	document.getElementById("quantity").reset(); 
+            })
+            return true;
+        }
+        
+        <!-- In this case, we will call GET /userInfo, and this will give us back a string with userinfo details from Principal user -->
+       /*  $.get("/userInfo", function(data) {
+            $("#userInfoString").html(data);
+            $(".unauthenticated").hide()
+            $(".authenticated").show()
+        }).fail(function() {
+            $(".unauthenticated").show()
+            $(".authenticated").hide()
+        });
+  */
+        var logout = function() {
+            $.post("/logout", function() {
+                $("#user").html('');
+                $(".unauthenticated").show();
+                $(".authenticated").hide();
+            })
+            return true;
+        }
+    </script>
+ 
+</head>
+<div class="container unauthenticated" style="text-align: center;">
+    <a href="/login">Login</a>
+</div>
+<div class="container authenticated" style="text-align: center;" >
+    <strong>Logged in as: <span id="user"></span></strong>
+    <br>
+    <br>
+    <strong>Sub: </strong><span id="userSub"></span>
+    <br>
+    <strong>Email: </strong><span id="userEmail"></span>
+    <br>
+    <strong>Provider: </strong><span id="provider"></span>
+    <br>
+    <br>
+    <button onClick="logout()">Logout</button>
+    <!-- <strong>User Profile Information: </strong>
+     <br>
+    <span id="userInfoString"></span>
+    <br> -->
+	<br>
+	<br>
+
+	<table style="width: 40%">
+		<tr>
+			<th>Item No</th>
+			<th>Item Code</th>
+			<th>Item Name</th>
+			<th>Price/KG</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>1234</td>
+			<td>Rice</td>
+			<td>50</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>1235</td>
+			<td>Dal</td>
+			<td>100</td>
+		</tr>
+		<tr>
+			<td>3</td>
+			<td>1235</td>
+			<td>Flour</td>
+			<td>70</td>
+		</tr>
+		<tr>
+			<td>4</td>
+			<td>1236</td>
+			<td>ghee</td>
+			<td>500</td>
+		</tr>
+	</table>
+	<br>
+	<br>
+	<strong>Order Details:</strong>
+	<br>
+	<strong>Item Code:</strong>
+  	<input type="text" id="itemno" name="itemno"><br><br>
+  	<strong>Quantity :</strong>
+  	<input type="text" id="quantity" name="quantity"><br><br>
+  	<button onClick="submit()">Submit Order</button>
+    </div>
+</div>
+</body>
+</html>

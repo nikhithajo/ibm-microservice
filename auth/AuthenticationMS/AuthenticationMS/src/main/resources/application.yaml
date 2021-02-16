@@ -1,0 +1,15 @@
+server:
+  port: 8888
+
+
+  
+security:
+  oauth2:
+    client:
+      clientId: 40f60f28-b051-46d7-a3bb-6aeaa874f11d
+      clientSecret: NzMwYmE1Y2YtNWVjNi00MzM0LTgwNTAtZWQ0ZTExNTNlMzUz
+      accessTokenUri: https://eu-gb.appid.cloud.ibm.com/oauth/v4/11a40941-e31b-4dc9-a990-eb144fbbf706/token
+      userAuthorizationUri: https://eu-gb.appid.cloud.ibm.com/oauth/v4/11a40941-e31b-4dc9-a990-eb144fbbf706/authorization
+    resource:
+      userInfoUri: https://eu-gb.appid.cloud.ibm.com/oauth/v4/11a40941-e31b-4dc9-a990-eb144fbbf706/userinfo
+
